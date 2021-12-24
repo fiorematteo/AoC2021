@@ -1,0 +1,25 @@
+0 push w0+6
+1 push w1+14
+2 push w2+14
+2 if pop-8 != w3
+3 push w4+9
+4 push w5+12
+4 if pop-11 != w6
+3 if pop-4 != w7
+1 if pop-15 != w8
+5 push w9+6
+6 push w10+9
+6 if pop-1 != w11
+5 if pop-8 != w12
+0 if pop-14 != w13
+
+0 w0-8=w13
+1 w1-1=w8
+2 w2+6=w3
+3 w4+5=w7
+4 w5+1=w6
+5 w9-2=w12
+6 w10+8=w11
+
+max: 99394899891971
+min: 92171126131911
