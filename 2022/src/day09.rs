@@ -21,16 +21,13 @@ pub fn part1(input: &str) -> usize {
             let x_distance = (head.0 - tail.0).abs();
             let y_distance = (head.1 - tail.1).abs();
             if x_distance > 1 || y_distance > 1 {
-                if head.0 == tail.0 {
-                    // only move y
+                let x_condition = head.0 == tail.0;
+                let y_condition = head.1 == tail.1;
+                if x_condition || !y_condition {
                     tail.1 += if head.1 > tail.1 { 1 } else { -1 };
-                } else if head.1 == tail.1 {
-                    // only move x
+                }
+                if x_condition || !y_condition {
                     tail.0 += if head.0 > tail.0 { 1 } else { -1 };
-                } else {
-                    // move both
-                    tail.0 += if head.0 > tail.0 { 1 } else { -1 };
-                    tail.1 += if head.1 > tail.1 { 1 } else { -1 };
                 }
                 positions.insert(tail);
             }
@@ -42,7 +39,7 @@ pub fn part1(input: &str) -> usize {
 #[aoc(day9, part2)]
 pub fn part2(input: &str) -> usize {
     let mut head = (0i32, 0i32);
-    let mut tail = (0..9).map(|_| (0i32, 0i32)).collect::<Vec<_>>();
+    let mut tail = vec![(0i32, 0i32); 9];
     let mut positions = HashSet::new();
     positions.insert(head);
     for line in input.lines() {
@@ -58,26 +55,22 @@ pub fn part2(input: &str) -> usize {
                 _ => unreachable!(),
             }
 
-            let mut i = 0;
             let mut current_head = head;
-            while i < tail.len() {
+            for i in 0..tail.len() {
                 let x_distance = (current_head.0 - tail[i].0).abs();
                 let y_distance = (current_head.1 - tail[i].1).abs();
                 if x_distance > 1 || y_distance > 1 {
-                    if current_head.0 == tail[i].0 {
-                        // only move y
+                    let x_condition = current_head.0 == tail[i].0;
+                    let y_condition = current_head.1 == tail[i].1;
+
+                    if x_condition || !y_condition {
                         tail[i].1 += if current_head.1 > tail[i].1 { 1 } else { -1 };
-                    } else if current_head.1 == tail[i].1 {
-                        // only move x
+                    }
+                    if y_condition || !x_condition {
                         tail[i].0 += if current_head.0 > tail[i].0 { 1 } else { -1 };
-                    } else {
-                        // move both
-                        tail[i].0 += if current_head.0 > tail[i].0 { 1 } else { -1 };
-                        tail[i].1 += if current_head.1 > tail[i].1 { 1 } else { -1 };
                     }
                 }
                 current_head = tail[i];
-                i += 1;
             }
             positions.insert(tail[8]);
         }
