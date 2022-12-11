@@ -56,21 +56,21 @@ pub fn part2(input: &str) -> usize {
             }
 
             let mut current_head = head;
-            for i in 0..tail.len() {
-                let x_distance = (current_head.0 - tail[i].0).abs();
-                let y_distance = (current_head.1 - tail[i].1).abs();
+            for t in &mut tail {
+                let x_distance = (current_head.0 - t.0).abs();
+                let y_distance = (current_head.1 - t.1).abs();
                 if x_distance > 1 || y_distance > 1 {
-                    let x_condition = current_head.0 == tail[i].0;
-                    let y_condition = current_head.1 == tail[i].1;
+                    let x_condition = current_head.0 == t.0;
+                    let y_condition = current_head.1 == t.1;
 
                     if x_condition || !y_condition {
-                        tail[i].1 += if current_head.1 > tail[i].1 { 1 } else { -1 };
+                        t.1 += if current_head.1 > t.1 { 1 } else { -1 };
                     }
                     if y_condition || !x_condition {
-                        tail[i].0 += if current_head.0 > tail[i].0 { 1 } else { -1 };
+                        t.0 += if current_head.0 > t.0 { 1 } else { -1 };
                     }
                 }
-                current_head = tail[i];
+                current_head = *t;
             }
             positions.insert(tail[8]);
         }

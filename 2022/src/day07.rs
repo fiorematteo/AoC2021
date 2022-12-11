@@ -4,20 +4,20 @@ use std::{cell::RefCell, collections::HashMap, fmt::Debug, rc::Rc};
 pub fn generator(input: &str) -> Rc<RefCell<Directory>> {
     let mut active_directory = Rc::new(RefCell::new(Directory {
         children: HashMap::new(),
-        name: "/".to_string(),
+        name: '/'.to_string(),
         parent: None,
     }));
     let root = active_directory.clone();
 
     for line in input.lines() {
-        if line.starts_with("$") {
+        if line.starts_with('$') {
             //handle command
             let line = line[2..].trim();
             if let "ls" = line {
                 continue;
             }
 
-            let (_, arg) = line.split_once(" ").unwrap();
+            let (_, arg) = line.split_once(' ').unwrap();
 
             // cmd = cd
             if arg == "/" {
@@ -32,7 +32,7 @@ pub fn generator(input: &str) -> Rc<RefCell<Directory>> {
                     .borrow()
                     .parent
                     .clone()
-                    .unwrap_or(active_directory.clone());
+                    .unwrap_or_else(|| active_directory.clone());
                 active_directory = parent;
                 continue;
             }
@@ -48,7 +48,7 @@ pub fn generator(input: &str) -> Rc<RefCell<Directory>> {
         }
         if line.starts_with("dir") {
             //handle directory
-            let (_, name) = line.split_once(" ").unwrap();
+            let (_, name) = line.split_once(' ').unwrap();
             let directory = Directory {
                 children: HashMap::new(),
                 name: name.to_string(),
@@ -61,7 +61,7 @@ pub fn generator(input: &str) -> Rc<RefCell<Directory>> {
             continue;
         }
         //handle file
-        let (size, name) = line.split_once(" ").unwrap();
+        let (size, name) = line.split_once(' ').unwrap();
         let file = File {
             name: name.to_string(),
             size: size.parse().unwrap(),
