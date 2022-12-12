@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+#[allow(clippy::identity_op)]
 #[aoc(day2, part1)]
 pub fn part1(input: &str) -> i32 {
     let mut map = HashMap::new();
@@ -17,6 +18,7 @@ pub fn part1(input: &str) -> i32 {
     input.lines().map(|l| map.get(l).unwrap()).sum()
 }
 
+#[allow(clippy::identity_op)]
 #[aoc(day2, part2)]
 pub fn part2(input: &str) -> i32 {
     let mut map = HashMap::new();

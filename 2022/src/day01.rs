@@ -10,13 +10,13 @@ pub fn input_generator(input: &str) -> Vec<i64> {
 }
 
 #[aoc(day1, part1)]
-pub fn part1(input: &Vec<i64>) -> i64 {
+pub fn part1(input: &[i64]) -> i64 {
     let max_elf = input.iter().max().unwrap();
     *max_elf
 }
 
 #[aoc(day1, part2, ugly)]
-pub fn part2_ugly(input: &Vec<i64>) -> i64 {
+pub fn part2_ugly(input: &[i64]) -> i64 {
     let mut max = (0, 0, 0);
     for elf in input {
         if elf > &max.0 {
@@ -31,7 +31,7 @@ pub fn part2_ugly(input: &Vec<i64>) -> i64 {
 }
 
 #[aoc(day1, part2, heap)]
-pub fn part2_heap(input: &Vec<i64>) -> i64 {
+pub fn part2_heap(input: &[i64]) -> i64 {
     let mut heap = BinaryHeap::new();
     for elf in input {
         heap.push(*elf);
@@ -40,8 +40,8 @@ pub fn part2_heap(input: &Vec<i64>) -> i64 {
 }
 
 #[aoc(day1, part2, sort)]
-pub fn part2_sort(input: &Vec<i64>) -> i64 {
-    let mut elves = input.clone();
+pub fn part2_sort(input: &[i64]) -> i64 {
+    let mut elves: Vec<_> = input.into();
     elves.sort();
     elves[elves.len() - 3..].iter().sum()
 }
