@@ -52,7 +52,7 @@ impl PartialOrd for Message {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         match (self, other) {
             (Message::List(s), Message::List(o)) => {
-                if s.len() == 0 && o.len() == 0 {
+                if s.is_empty() && o.is_empty() {
                     return Some(Ordering::Equal);
                 }
                 let mut i = 0;

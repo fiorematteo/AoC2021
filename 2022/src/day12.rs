@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashSet, VecDeque};
 
 const MAX_X: usize = 113;
 const MAX_Y: usize = 41;
@@ -13,7 +13,7 @@ pub fn part1(input: &str) -> i32 {
             }
         }
     }
-    solution(input, start)
+    solution(input, &[start])
 }
 
 #[aoc(day12, part2)]
@@ -26,14 +26,10 @@ pub fn part2(input: &str) -> i32 {
             }
         }
     }
-    starts
-        .iter()
-        .map(|&start| solution(input, start))
-        .min()
-        .unwrap()
+    solution(input, &starts)
 }
 
-pub fn solution(input: &str, start: (usize, usize)) -> i32 {
+pub fn solution(input: &str, starts: &[(usize, usize)]) -> i32 {
     let mut end = (0, 0);
     let mut grid = [[0; MAX_X]; MAX_Y];
     for (y, line) in input.lines().enumerate() {
@@ -50,10 +46,8 @@ pub fn solution(input: &str, start: (usize, usize)) -> i32 {
         }
     }
 
-    let mut nodes: VecDeque<_> = vec![(start, 0)].into();
-    let mut dist: HashMap<(usize, usize), i32> = HashMap::new();
+    let mut nodes: VecDeque<((usize, usize), i32)> = starts.iter().map(|s| (*s, 0)).collect();
     let mut visited: HashSet<(usize, usize)> = HashSet::new();
-    dist.insert(start, 0);
     while !nodes.is_empty() {
         let (current, current_distance) = nodes.pop_front().unwrap();
         if current == end {
