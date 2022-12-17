@@ -8,7 +8,7 @@ pub fn generator(input: &str) -> (Vec<String>, Vec<u64>, Vec<Vec<String>>) {
             .replace("; tunnels lead to valves ", ",")
             .replace("; tunnel leads to valve ", ",")
             .replace(' ', "");
-        let mut iter = line.split(',').into_iter();
+        let mut iter = line.split(',');
 
         let name = iter.next().unwrap().to_string();
         let flow_rate = iter.next().unwrap().parse::<u64>().unwrap();

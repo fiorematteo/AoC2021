@@ -26,7 +26,7 @@ pub fn part1(input: &[(i32, i32, i32)]) -> usize {
     let mut covered = BTreeSet::new();
     for &(x, y, d) in input {
         let d = d - Y.abs_diff(y) as i32;
-        for i in x - d as i32..x + d as i32 {
+        for i in x - d..x + d {
             covered.insert(i);
         }
     }
@@ -44,7 +44,7 @@ pub fn part2(input: &[(i32, i32, i32)]) -> u64 {
             let dy = sy.abs_diff(y as _) as i32;
 
             if dy < *sd {
-                let dx = (sd - dy) as i32;
+                let dx = sd - dy;
                 covered.push(0.max(sx - dx)..Y.min(sx + dx));
             }
         }
