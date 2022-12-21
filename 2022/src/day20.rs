@@ -8,7 +8,7 @@ pub fn generator(input: &str) -> Vec<i64> {
 
 #[aoc(day20, part1)]
 pub fn part1(numbers: &[i64]) -> i64 {
-    solve(&numbers, 1)
+    solve(numbers, 1)
 }
 
 #[aoc(day20, part2)]

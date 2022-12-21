@@ -1,22 +1,25 @@
 use std::collections::{BTreeSet, VecDeque};
 
-#[aoc(day18, part1)]
-pub fn part1(input: &str) -> i32 {
-    let cubes: Vec<_> = input
+#[aoc_generator(day18)]
+pub fn generator(input: &str) -> Vec<(i32, i32, i32)> {
+    input
         .lines()
         .map(|line| {
-            let mut iter = line.split(",").map(|x| x.parse::<i32>().unwrap());
+            let mut iter = line.split(',').map(|x| x.parse::<i32>().unwrap());
             (
                 iter.next().unwrap(),
                 iter.next().unwrap(),
                 iter.next().unwrap(),
             )
         })
-        .collect();
+        .collect()
+}
 
+#[aoc(day18, part1)]
+pub fn part1(cubes: &[(i32, i32, i32)]) -> i32 {
     let count: i32 = cubes
         .iter()
-        .map(|a| {
+        .flat_map(|a| {
             cubes.iter().filter_map(move |b| {
                 if a == b {
                     None
@@ -25,25 +28,12 @@ pub fn part1(input: &str) -> i32 {
                 }
             })
         })
-        .flatten()
         .sum();
     (cubes.len() as i32 * 6) - count
 }
 
 #[aoc(day18, part2)]
-pub fn part2(input: &str) -> i32 {
-    let cubes: Vec<_> = input
-        .lines()
-        .map(|line| {
-            let mut iter = line.split(",").map(|x| x.parse::<i32>().unwrap());
-            (
-                iter.next().unwrap(),
-                iter.next().unwrap(),
-                iter.next().unwrap(),
-            )
-        })
-        .collect();
-
+pub fn part2(cubes: &[(i32, i32, i32)]) -> i32 {
     let max_x = *cubes.iter().map(|(x, _, _)| x).max().unwrap();
     let max_y = *cubes.iter().map(|(_, y, _)| y).max().unwrap();
     let max_z = *cubes.iter().map(|(_, _, z)| z).max().unwrap();
@@ -75,8 +65,7 @@ pub fn part2(input: &str) -> i32 {
     }
 
     air.iter()
-        .map(|a| cubes.iter().map(|c| touching(c, a) as i32))
-        .flatten()
+        .flat_map(|a| cubes.iter().map(|c| touching(c, a) as i32))
         .sum()
 }
 
