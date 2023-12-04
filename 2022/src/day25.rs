@@ -1,4 +1,3 @@
-#![allow(unused)]
 use itertools::{EitherOrBoth::*, Itertools};
 
 #[aoc(day25, part1)]

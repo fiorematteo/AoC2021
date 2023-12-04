@@ -61,7 +61,6 @@ pub fn part1(input: &str) -> u64 {
 }
 
 #[aoc(day17, part2)]
-#[allow(unused_variables)]
 pub fn part2(input: &str) -> isize {
     let mut jets = input.chars().enumerate().cycle().peekable();
     let line = vec![(0, 0), (1, 0), (2, 0), (3, 0)];

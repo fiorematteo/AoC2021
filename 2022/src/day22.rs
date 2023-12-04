@@ -1,18 +1,20 @@
-use std::collections::BTreeMap;
+use std::ops::Range;
 
-#[aoc(day22, part1)]
-pub fn part1(input: &str) -> i64 {
+#[aoc_generator(day22)]
+pub fn generator(input: &str) -> (Vec<Vec<char>>, Vec<Move>) {
     let (map, moves) = input.split_once("\n\n").unwrap();
-    let map: BTreeMap<Position, char> = map
+    let mut map = map
         .lines()
-        .enumerate()
-        .flat_map(|(y, line)| {
-            line.chars()
-                .enumerate()
-                .map(move |(x, c)| ((x as i64, y as i64).into(), c))
-        })
-        .filter(|(_, c)| *c != ' ')
-        .collect();
+        .map(|line| line.chars().collect::<Vec<_>>())
+        .collect::<Vec<_>>();
+
+    let biggest_row = map.iter().map(|row| row.len()).max().unwrap();
+
+    for row in map.iter_mut() {
+        while row.len() < biggest_row {
+            row.push(' ');
+        }
+    }
 
     let mut new_moves = Vec::new();
     let mut tmp = String::new();
@@ -29,70 +31,157 @@ pub fn part1(input: &str) -> i64 {
         new_moves.push(Move::Move(tmp.parse().unwrap()));
     }
 
-    let mut current: Position = *map
-        .iter()
-        .filter(|&(&p, &c)| p.y == 0 && c == '.')
-        .min_by_key(|&(&p, &_)| p.x)
-        .unwrap()
-        .0;
-    let mut direction: Position = (1, 0).into();
+    (map, new_moves)
+}
 
-    new_moves.iter().for_each(|&m| match m {
-        Move::Move(n) => {
-            for _ in 0..n {
-                if let Some(&c) = map.get(&(current + direction)) {
-                    if c == '#' {
-                        break;
+#[aoc(day22, part1)]
+pub fn part1((map, moves): &(Vec<Vec<char>>, Vec<Move>)) -> usize {
+    let mut start_x = 0;
+    for x in 0..map[0].len() {
+        if map[0][x] == '.' {
+            start_x = x;
+            break;
+        }
+    }
+
+    let (mut current_y, mut current_x) = (0_usize, start_x as usize);
+    let mut direction = Direction::Right;
+
+    for m in moves {
+        match m {
+            Move::Rotate(r) => match r {
+                'R' => direction = direction.rotate_right(),
+                'L' => direction = direction.rotate_left(),
+                _ => unreachable!(),
+            },
+            Move::Move(mut n) => {
+                while n > 0 {
+                    let (mut new_y, mut new_x) = direction.apply((current_y, current_x));
+                    if new_y < 0 {
+                        new_y = map.len() as i64 - 1;
+                    } else if new_y == map.len() as i64 {
+                        new_y = 0;
                     }
-                    current = current + direction;
-                    continue;
-                }
-
-                let mut current_copy = current - direction;
-                let mut prev_char = ' ';
-                while let Some(&next) = map.get(&current_copy) {
-                    current_copy = current_copy - direction;
-                    prev_char = next;
-                }
-                if prev_char == '.' {
-                    current = current_copy;
+                    if new_x < 0 {
+                        new_x = map[0].len() as i64 - 1;
+                    } else if new_x == map[0].len() as i64 {
+                        new_x = 0;
+                    }
+                    if map[new_y as usize][new_x as usize] == '.' {
+                        (current_y, current_x) = (new_y as usize, new_x as usize);
+                    } else if map[new_y as usize][new_x as usize] == ' ' {
+                        while map[new_y as usize][new_x as usize] == ' ' {
+                            new_y = (new_y + direction.y()).rem_euclid(map.len() as i64);
+                            new_x = (new_x + direction.x()).rem_euclid(map[0].len() as i64);
+                        }
+                        if map[new_y as usize][new_x as usize] == '.' {
+                            (current_y, current_x) = (new_y as usize, new_x as usize);
+                        }
+                    }
+                    n -= 1;
                 }
             }
         }
-        Move::Rotate(c) => match c {
-            'R' => direction = direction.rotate_right(),
-            'L' => direction = direction.rotate_left(),
-            _ => unreachable!(),
-        },
-    });
-    (current.y + 1) * 1000
-        + (current.x + 1) * 4
+    }
+    1000 * (current_y + 1)
+        + 4 * (current_x + 1)
         + match direction {
-            Position { x: 1, y: 0 } => 0,  // right
-            Position { x: 0, y: 1 } => 1,  // down
-            Position { x: -1, y: 0 } => 2, // left
-            Position { x: 0, y: -1 } => 3, // up
-            _ => unreachable!(),
+            Direction::Right => 0,
+            Direction::Down => 1,
+            Direction::Left => 2,
+            Direction::Up => 3,
         }
 }
 
-pub fn dump_map(map: &BTreeMap<Position, char>, player: Position) {
-    let min_x = map.iter().map(|(&p, _)| p.x).min().unwrap();
-    let max_x = map.iter().map(|(&p, _)| p.x).max().unwrap();
-    let min_y = map.iter().map(|(&p, _)| p.y).min().unwrap();
-    let max_y = map.iter().map(|(&p, _)| p.y).max().unwrap();
-    for y in min_y..=max_y {
-        for x in min_x..=max_x {
-            let c = map.get(&(x, y).into()).unwrap_or(&' ');
-            if Position::from((x, y)) == player {
-                print!("@");
-            } else {
-                print!("{}", c);
-            }
+#[aoc(day22, part2)]
+pub fn part2((map, moves): &(Vec<Vec<char>>, Vec<Move>)) -> usize {
+    let face_size = map[0].iter().filter(|&&c| c != ' ').count();
+    let mut regions = vec![];
+    regions.push(extract_region(
+        // 1
+        map,
+        0..face_size,
+        face_size * 2..face_size * 3,
+    ));
+    regions.push(extract_region(
+        // 2
+        map,
+        face_size..face_size * 2,
+        0..face_size,
+    ));
+    regions.push(extract_region(
+        // 3
+        map,
+        face_size..face_size * 2,
+        face_size..face_size * 2,
+    ));
+    regions.push(extract_region(
+        // 4
+        map,
+        face_size..face_size * 2,
+        face_size * 2..face_size * 3,
+    ));
+    regions.push(extract_region(
+        // 5
+        map,
+        face_size * 2..face_size * 3,
+        face_size * 2..face_size * 3,
+    ));
+    regions.push(extract_region(
+        // 6
+        map,
+        face_size * 2..face_size * 3,
+        face_size * 3..face_size * 4,
+    ));
+    for row in &regions[0].iter(){}
+    todo!()
+}
+
+pub fn rotate_region_right(region: &[Vec<char>]) -> Vec<Vec<char>> {
+    let mut out = vec![vec![' '; region.len()]; region.len()];
+    for y in 0..region.len() {
+        for x in 0..region.len() {
+            out[x][region.len() - 1 - y] = region[y][x];
         }
-        println!();
     }
-    println!();
+    out
+}
+
+pub fn extract_region(
+    map: &[Vec<char>],
+    y_range: Range<usize>,
+    x_range: Range<usize>,
+) -> Vec<Vec<char>> {
+    map[y_range]
+        .iter()
+        .map(|v| v[x_range.clone()].to_vec())
+        .collect()
+}
+
+pub fn region(y: usize, x: usize, face_size: usize) -> usize {
+    if (face_size * 2..face_size * 3).contains(&x) && (0..face_size).contains(&y) {
+        return 1;
+    }
+    if (face_size * 2..face_size * 3).contains(&y) {
+        if (0..face_size).contains(&x) {
+            return 2;
+        }
+        if (face_size..face_size * 2).contains(&x) {
+            return 3;
+        }
+        if (face_size * 3..face_size * 4).contains(&x) {
+            return 4;
+        }
+    }
+    if (face_size * 2..face_size * 3).contains(&y) {
+        if (face_size * 2..face_size * 3).contains(&x) {
+            return 5;
+        }
+        if (face_size * 3..face_size * 4).contains(&x) {
+            return 6;
+        }
+    }
+    unreachable!()
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -102,59 +191,88 @@ pub enum Move {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Position {
-    x: i64,
-    y: i64,
+pub enum Direction {
+    Right,
+    Left,
+    Down,
+    Up,
 }
 
-impl Position {
+impl Direction {
     pub fn rotate_left(self) -> Self {
         match self {
-            Position { x: 1, y: 0 } => (0, -1).into(),
-            Position { x: -1, y: 0 } => (0, 1).into(),
-            Position { x: 0, y: 1 } => (1, 0).into(),
-            Position { x: 0, y: -1 } => (-1, 0).into(),
-            _ => unreachable!(),
+            Direction::Right => Direction::Up,
+            Direction::Left => Direction::Down,
+            Direction::Up => Direction::Left,
+            Direction::Down => Direction::Right,
         }
     }
     pub fn rotate_right(self) -> Self {
         match self {
-            Position { x: 1, y: 0 } => (0, 1).into(),
-            Position { x: -1, y: 0 } => (0, -1).into(),
-            Position { x: 0, y: 1 } => (-1, 0).into(),
-            Position { x: 0, y: -1 } => (1, 0).into(),
-            _ => unreachable!(),
+            Direction::Right => Direction::Down,
+            Direction::Left => Direction::Up,
+            Direction::Up => Direction::Right,
+            Direction::Down => Direction::Left,
+        }
+    }
+
+    pub fn apply(self, (y, x): (usize, usize)) -> (i64, i64) {
+        let new_y = y as i64 + self.y();
+        let new_x = x as i64 + self.x();
+        (new_y, new_x)
+    }
+
+    pub fn x(&self) -> i64 {
+        match self {
+            Direction::Right => 1,
+            Direction::Left => -1,
+            _ => 0,
+        }
+    }
+
+    pub fn y(&self) -> i64 {
+        match self {
+            Direction::Up => -1,
+            Direction::Down => 1,
+            _ => 0,
         }
     }
 }
 
-impl From<(i64, i64)> for Position {
-    fn from(value: (i64, i64)) -> Self {
-        Self {
-            x: value.0,
-            y: value.1,
-        }
-    }
+#[test]
+fn part1_test() {
+    let input = r#"        ...#
+        .#..
+        #...
+        ....
+...#.......#
+........#...
+..#....#....
+..........#.
+        ...#....
+        .....#..
+        .#......
+        ......#.
+
+10R5L5R10L4R5L5"#;
+    assert_eq!(part1(&generator(input)), 6032);
 }
 
-impl std::ops::Add<Position> for Position {
-    type Output = Position;
+#[test]
+fn part2_test() {
+    let input = r#"        ...#
+        .#..
+        #...
+        ....
+...#.......#
+........#...
+..#....#....
+..........#.
+        ...#....
+        .....#..
+        .#......
+        ......#.
 
-    fn add(self, rhs: Position) -> Self::Output {
-        Self {
-            x: self.x.checked_add(rhs.x).unwrap(),
-            y: self.y.checked_add(rhs.y).unwrap(),
-        }
-    }
-}
-
-impl std::ops::Sub<Position> for Position {
-    type Output = Position;
-
-    fn sub(self, rhs: Position) -> Self::Output {
-        Self {
-            x: self.x.checked_sub(rhs.x).unwrap(),
-            y: self.y.checked_sub(rhs.y).unwrap(),
-        }
-    }
+10R5L5R10L4R5L5"#;
+    assert_eq!(part2(&generator(input)), 5031);
 }

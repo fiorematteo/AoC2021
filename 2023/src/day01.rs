@@ -5,7 +5,7 @@ pub fn part1(input: &str) -> u32 {
         .map(|l| {
             let mut all_numbers = vec![];
             for c in l.chars() {
-                if c.is_digit(10) {
+                if c.is_ascii_digit() {
                     all_numbers.push(c.to_digit(10).unwrap());
                 }
             }
@@ -26,7 +26,7 @@ pub fn part2(input: &str) -> usize {
             let mut all_numbers = vec![];
             for j in 0..line.len() {
                 let d = line.chars().nth(j).unwrap();
-                if d.is_digit(10) {
+                if d.is_ascii_digit() {
                     all_numbers.push(d.to_digit(10).unwrap() as usize);
                 } else {
                     for (i, digit) in digits.iter().enumerate() {

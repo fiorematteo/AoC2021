@@ -45,14 +45,11 @@ pub fn part2(games: &[Vec<HashMap<String, usize>>]) -> usize {
             let mut minimum_set: HashMap<String, usize> = HashMap::new();
             for hand in game {
                 for (color, value) in hand {
-                    if let Some(minimum) = minimum_set.get_mut(color) {
-                        *minimum = max(*minimum, *value);
-                    } else {
-                        minimum_set.insert(color.to_string(), *value);
-                    }
+                    let minimum = minimum_set.entry(color.to_string()).or_default();
+                    *minimum = max(*minimum, *value);
                 }
             }
-            minimum_set["green"] * minimum_set["red"] * minimum_set["blue"]
+            minimum_set.values().product::<usize>()
         })
         .sum()
 }
