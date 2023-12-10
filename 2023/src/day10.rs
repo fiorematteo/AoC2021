@@ -2,14 +2,11 @@ use std::collections::{HashMap, HashSet};
 
 #[aoc(day10, part1)]
 fn part1(input: &str) -> usize {
-    let map: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
-    let max_y = map.len();
-    let max_x = map[0].len();
-
+    let mut map: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
     let find_start = || {
-        for y in 0..max_y {
-            for x in 0..max_x {
-                if map[y][x] == 'S' {
+        for (y, row) in map.iter().enumerate() {
+            for (x, &el) in row.iter().enumerate() {
+                if el == 'S' {
                     return (y, x);
                 }
             }
@@ -17,6 +14,24 @@ fn part1(input: &str) -> usize {
         unreachable!()
     };
     let start = find_start();
+    let mut possible_directions = vec![];
+    for dir in &[
+        Direction::Up,
+        Direction::Down,
+        Direction::Left,
+        Direction::Right,
+    ] {
+        let next_pos = dir.apply(start);
+        if char_can_move(map[next_pos.0][next_pos.1]).contains(&dir.opposite()) {
+            possible_directions.push(*dir);
+        }
+    }
+
+    map[start.0][start.1] = ['-', '|', 'L', 'J', 'F', '7', '.']
+        .into_iter()
+        .find(|&c| char_can_move(c) == possible_directions)
+        .unwrap();
+
     let mut visited = HashMap::new();
     visited.insert(start, 0);
 
@@ -49,14 +64,11 @@ fn part1(input: &str) -> usize {
 
 #[aoc(day10, part2)]
 fn part2(input: &str) -> usize {
-    let map: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
-    let max_y = map.len();
-    let max_x = map[0].len();
-
+    let mut map: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
     let find_start = || {
-        for y in 0..max_y {
-            for x in 0..max_x {
-                if map[y][x] == 'S' {
+        for (y, row) in map.iter().enumerate() {
+            for (x, &el) in row.iter().enumerate() {
+                if el == 'S' {
                     return (y, x);
                 }
             }
@@ -64,6 +76,24 @@ fn part2(input: &str) -> usize {
         unreachable!()
     };
     let start = find_start();
+
+    let mut possible_directions = vec![];
+    for dir in &[
+        Direction::Up,
+        Direction::Down,
+        Direction::Left,
+        Direction::Right,
+    ] {
+        let next_pos = dir.apply(start);
+        if char_can_move(map[next_pos.0][next_pos.1]).contains(&dir.opposite()) {
+            possible_directions.push(*dir);
+        }
+    }
+    map[start.0][start.1] = ['-', '|', 'L', 'J', 'F', '7', '.']
+        .into_iter()
+        .find(|&c| char_can_move(c) == possible_directions)
+        .unwrap();
+
     let mut visited = HashSet::new();
     visited.insert(start);
 
@@ -86,10 +116,10 @@ fn part2(input: &str) -> usize {
     }
 
     let mut inside_points = 0;
-    for y in 0..max_y {
+    for (y, row) in map.iter().enumerate() {
         let mut parity = 0;
-        for x in 0..max_x {
-            if ['|', 'J', 'L', 'S'].contains(&map[y][x]) && visited.contains(&(y, x)) {
+        for (x, el) in row.iter().enumerate() {
+            if ['|', 'J', 'L', 'S'].contains(el) && visited.contains(&(y, x)) {
                 parity += 1;
             }
             if !visited.contains(&(y, x)) && (parity % 2 == 1) {
@@ -144,28 +174,24 @@ fn is_reachable((from_y, from_x): (usize, usize), direction: Direction, map: &[V
 
     let to_char = map[to_y][to_x];
     let from_char = map[from_y][from_x];
-    let m = |to_char, from_char, direction| match (to_char, from_char, direction) {
-        ('|', '|', Direction::Up | Direction::Down)
-        | ('-', '-', Direction::Left | Direction::Right)
-        | ('|', 'L' | 'J', Direction::Down)
-        | ('|', 'F' | '7', Direction::Up)
-        | ('-', 'L' | 'F', Direction::Left)
-        | ('-', 'J' | '7', Direction::Right)
-        | ('L', 'F' | '7', Direction::Up)
-        | ('L', 'J' | '7', Direction::Right)
-        | ('J', 'F' | 'L', Direction::Left)
-        | ('J', '7' | 'F', Direction::Up)
-        | ('7', 'F' | 'L', Direction::Left)
-        | ('7', 'L' | 'J', Direction::Down)
-        | ('F', 'J' | '7', Direction::Right)
-        | ('F', 'J' | 'L', Direction::Down)
-        | ('S', '|' | 'F' | '7', Direction::Up)
-        | ('S', '|' | 'J' | 'L', Direction::Down)
-        | ('S', '-' | 'F' | 'L', Direction::Left)
-        | ('S', '-' | 'J' | '7', Direction::Right) => true,
-        _ => false,
-    };
-    m(from_char, to_char, direction) || m(to_char, from_char, direction.opposite())
+
+    char_can_move(from_char).iter().any(|&dir| dir == direction)
+        && char_can_move(to_char)
+            .iter()
+            .any(|&dir| dir == direction.opposite())
+}
+
+fn char_can_move(c: char) -> Vec<Direction> {
+    match c {
+        '-' => vec![Direction::Left, Direction::Right],
+        '|' => vec![Direction::Up, Direction::Down],
+        'L' => vec![Direction::Up, Direction::Right],
+        'J' => vec![Direction::Up, Direction::Left],
+        'F' => vec![Direction::Down, Direction::Right],
+        '7' => vec![Direction::Down, Direction::Left],
+        '.' => vec![],
+        _ => unreachable!(),
+    }
 }
 
 #[test]

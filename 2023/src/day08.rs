@@ -46,7 +46,7 @@ fn part2(input: &str) -> usize {
         })
         .collect();
 
-    let nodes: Vec<&str> = map.keys().filter(|k| k.ends_with("A")).cloned().collect();
+    let nodes: Vec<&str> = map.keys().filter(|k| k.ends_with('A')).cloned().collect();
     let mut times: Vec<usize> = Vec::new();
     for mut current in nodes.into_iter() {
         let mut steps = 0;
