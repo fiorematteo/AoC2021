@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
-#[aoc(day10, part1)]
-fn part1(input: &str) -> usize {
+#[aoc_generator(day10)]
+fn generator(input: &str) -> (Vec<Vec<char>>, (usize, usize)) {
     let mut map: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
     let find_start = || {
         for (y, row) in map.iter().enumerate() {
@@ -31,11 +31,15 @@ fn part1(input: &str) -> usize {
         .into_iter()
         .find(|&c| char_can_move(c) == possible_directions)
         .unwrap();
+    (map, start)
+}
 
+#[aoc(day10, part1)]
+fn part1((map, start): &(Vec<Vec<char>>, (usize, usize))) -> usize {
     let mut visited = HashMap::new();
-    visited.insert(start, 0);
+    visited.insert(*start, 0);
 
-    let mut queue = vec![(start, 0)];
+    let mut queue = vec![(*start, 0)];
     while let Some((current, steps)) = queue.pop() {
         for dir in &[
             Direction::Up,
@@ -63,41 +67,11 @@ fn part1(input: &str) -> usize {
 }
 
 #[aoc(day10, part2)]
-fn part2(input: &str) -> usize {
-    let mut map: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
-    let find_start = || {
-        for (y, row) in map.iter().enumerate() {
-            for (x, &el) in row.iter().enumerate() {
-                if el == 'S' {
-                    return (y, x);
-                }
-            }
-        }
-        unreachable!()
-    };
-    let start = find_start();
-
-    let mut possible_directions = vec![];
-    for dir in &[
-        Direction::Up,
-        Direction::Down,
-        Direction::Left,
-        Direction::Right,
-    ] {
-        let next_pos = dir.apply(start);
-        if char_can_move(map[next_pos.0][next_pos.1]).contains(&dir.opposite()) {
-            possible_directions.push(*dir);
-        }
-    }
-    map[start.0][start.1] = ['-', '|', 'L', 'J', 'F', '7', '.']
-        .into_iter()
-        .find(|&c| char_can_move(c) == possible_directions)
-        .unwrap();
-
+fn part2((map, start): &(Vec<Vec<char>>, (usize, usize))) -> usize {
     let mut visited = HashSet::new();
-    visited.insert(start);
+    visited.insert(*start);
 
-    let mut queue = vec![start];
+    let mut queue = vec![*start];
     while let Some(current) = queue.pop() {
         for dir in &[
             Direction::Up,
@@ -201,5 +175,5 @@ fn test_part1() {
 .|.|.
 .L-J.
 ....."#;
-    assert_eq!(part1(input), 4);
+    assert_eq!(part1(&generator(input)), 4);
 }
