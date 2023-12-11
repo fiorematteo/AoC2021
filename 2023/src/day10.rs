@@ -47,7 +47,7 @@ fn part1((map, start): &(Vec<Vec<char>>, (usize, usize))) -> usize {
             Direction::Left,
             Direction::Right,
         ] {
-            if is_reachable(current, *dir, &map) {
+            if is_reachable(current, *dir, map) {
                 let next_pos = dir.apply(current);
                 if let Some(old_steps) = visited.get_mut(&next_pos) {
                     if *old_steps <= steps + 1 {
@@ -79,7 +79,7 @@ fn part2((map, start): &(Vec<Vec<char>>, (usize, usize))) -> usize {
             Direction::Left,
             Direction::Right,
         ] {
-            if is_reachable(current, *dir, &map) {
+            if is_reachable(current, *dir, map) {
                 let next_pos = dir.apply(current);
                 if !visited.contains(&next_pos) {
                     visited.insert(next_pos);
