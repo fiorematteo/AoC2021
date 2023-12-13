@@ -52,10 +52,11 @@ fn solve_line(
         return v;
     }
     if index == data.len() {
-        if b_index == blocks.len() && block_len == 0 {
+        if (b_index == blocks.len() && block_len == 0)
+            || (b_index == blocks.len() - 1 && block_len == blocks[b_index])
+        {
             // no more blocks
-            return 1;
-        } else if b_index == blocks.len() - 1 && block_len == blocks[b_index] {
+            // or
             // last block
             return 1;
         } else {
