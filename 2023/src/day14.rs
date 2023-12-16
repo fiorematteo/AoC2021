@@ -1,3 +1,4 @@
+#![allow(clippy::needless_range_loop)]
 use std::collections::HashMap;
 
 #[aoc(day14, part1)]
@@ -28,8 +29,8 @@ fn part2(input: &str) -> i64 {
         tilt_down(&mut map);
         tilt_right(&mut map);
         let hash: String = map.iter().flat_map(|l| l.iter()).collect();
-        if cycle.contains_key(&hash) {
-            i = big - (big - i) % (i - cycle[&hash]);
+        if let Some(e) = cycle.get(&hash) {
+            i = big - (big - i) % (i - e);
         } else {
             cycle.insert(hash, i);
         }
