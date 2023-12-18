@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-#[aoc(day18, part1)]
+#[aoc(day18, part1, flood_fill)]
 fn part1(input: &str) -> usize {
     let mut map = HashSet::new();
     let mut y = 0;
@@ -20,12 +20,21 @@ fn part1(input: &str) -> usize {
     map.len()
 }
 
+#[aoc(day18, part1, sholace)]
+fn part1_sholace(input: &str) -> i64 {
+    let mut edges = vec![];
+    for line in input.lines() {
+        let mut s = line.split_whitespace();
+        let dir: Direction = s.next().unwrap().into();
+        let steps: i64 = s.next().unwrap().parse().unwrap();
+        edges.push((steps, dir));
+    }
+    sholace(&edges)
+}
+
 #[aoc(day18, part2)]
 fn part2(input: &str) -> i64 {
-    let mut y = 0;
-    let mut x = 0;
-    let mut vertex = vec![(y, x)];
-    let mut area = 2;
+    let mut edges = vec![];
     for line in input.lines() {
         let mut s = line.split_whitespace().skip(2);
         let s = s.next().unwrap();
@@ -33,18 +42,24 @@ fn part2(input: &str) -> i64 {
         let (steps, dir) = s.split_at(5);
         let steps = i64::from_str_radix(steps, 16).unwrap();
         let dir: Direction = dir.into();
-        (y, x) = dir.apply_s(y, x, steps);
-        area += steps;
-        vertex.push((y, x));
+        edges.push((steps, dir));
     }
 
-    // sholace formula
-    for v in vertex.windows(2) {
-        let (y0, x0) = v[0];
-        let (y1, x1) = v[1];
-        area += (y0 + y1) * (x0 - x1);
+    sholace(&edges)
+}
+
+fn sholace(edges: &[(i64, Direction)]) -> i64 {
+    let mut y = 0;
+    let mut x = 0;
+    let mut perimiter = 0;
+    let mut area = 0;
+    for &(steps, dir) in edges {
+        perimiter += steps;
+        let (y1, x1) = dir.apply_s(y, x, steps);
+        area += (y + y1) * (x - x1);
+        (y, x) = (y1, x1);
     }
-    area / 2
+    (area + perimiter) / 2 + 1
 }
 
 fn flood_fill(map: &mut HashSet<(i64, i64)>, y: i64, x: i64) {
