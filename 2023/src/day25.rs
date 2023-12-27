@@ -25,7 +25,22 @@ fn part1(input: &str) -> usize {
         while nodes.len() > 2 {
             // get random edge
             let edge = edges.choose(&mut rand::thread_rng()).unwrap().clone();
-            contract(&mut nodes, &mut edges, edge);
+            // contract
+            let (a, b) = edge.clone();
+            edges.retain(|e| *e != edge);
+            edges.retain(|e| *e != (b.clone(), a.clone()));
+            nodes.retain(|n| *n != a && *n != b);
+
+            let new_node = format!("{}#{}", a, b);
+            for edge in edges.iter_mut() {
+                if edge.0 == a || edge.0 == b {
+                    edge.0 = new_node.clone();
+                }
+                if edge.1 == a || edge.1 == b {
+                    edge.1 = new_node.clone();
+                }
+            }
+            nodes.push(new_node);
         }
         if edges.len() == 6 {
             let a = nodes[0].split('#').count();
@@ -33,24 +48,6 @@ fn part1(input: &str) -> usize {
             return a * b;
         }
     }
-}
-
-fn contract(nodes: &mut Vec<String>, edges: &mut Vec<(String, String)>, edge: (String, String)) {
-    let (a, b) = edge.clone();
-    edges.retain(|e| *e != edge);
-    edges.retain(|e| *e != (b.clone(), a.clone()));
-    nodes.retain(|n| *n != a && *n != b);
-
-    let new_node = format!("{}#{}", a, b);
-    for edge in edges.iter_mut() {
-        if edge.0 == a || edge.0 == b {
-            edge.0 = new_node.clone();
-        }
-        if edge.1 == a || edge.1 == b {
-            edge.1 = new_node.clone();
-        }
-    }
-    nodes.push(new_node);
 }
 
 #[test]

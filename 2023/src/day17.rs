@@ -53,13 +53,7 @@ fn solve(input: &str, part1: bool) -> i64 {
                 && special_condition
             {
                 let new_heat = heat + map[new_y as usize][new_x as usize];
-                q.push(Reverse((
-                    new_heat,
-                    new_y,
-                    new_x,
-                    new_dir,
-                    new_line_lenght,
-                )));
+                q.push(Reverse((new_heat, new_y, new_x, new_dir, new_line_lenght)));
             }
         }
     }

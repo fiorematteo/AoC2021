@@ -98,7 +98,6 @@ fn part2(modules: &Modules) -> usize {
         let mut queue: VecDeque<_> =
             vec![("broadcaster".to_string(), Pulse::Low, "button".to_string())].into();
         while let Some((name, signal, from)) = queue.pop_back() {
-
             if nodes_to_watch.contains(&name) && signal == Pulse::Low {
                 if !lcm_map.contains_key(&name) {
                     lcm_map.insert(name.clone(), i);
