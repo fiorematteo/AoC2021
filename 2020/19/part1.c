@@ -11,37 +11,86 @@
 #define FILE_NAME "test"
 #endif
 
-struct rule {
-    char v;
-    int l[2];
-    int r[2];
+typedef enum kind kind;
+enum kind {
+    LITERAL,
+    BRANCH,
+    SEQUENCE,
 };
 
-bool match(char **message, struct rule *rules, int rule) {
-    bool outl = false;
-    bool outr = false;
-    if (rules[rule].v != 0) {
-        bool out = (rules[rule].v == **message);
+typedef struct rule rule;
+struct rule {
+    int sequence[4];
+    char value;
+    int left[4];
+    int right[4];
+    kind kind;
+};
+
+bool match(char **message, rule *rules, rule rule) {
+    if (rule.kind == LITERAL) {
+        bool out = **message == rule.value;
         (*message)++;
         return out;
+    } else if (rule.kind == SEQUENCE) {
+        bool out = true;
+        for (int i = 0; rule.sequence[i] != 0; i++) {
+            out &= match(message, rules, rules[rule.sequence[i]]);
+        }
+        return out;
+    } else if (rule.kind == BRANCH) {
+        // backtracking?
+        char *old_line = *message;
+
+        bool left = true;
+        for (int i = 0; rule.left[i] != 0; i++) {
+            left &= match(message, rules, rules[rule.left[i]]);
+        }
+        if (left)
+            return true;
+        message = &old_line;
+
+        bool right = true;
+        for (int i = 0; rule.right[i] != 0; i++) {
+            right &= match(message, rules, rules[rule.right[i]]);
+        }
+        return right;
+    } else {
+        assert(false);
     }
+}
 
-    char *msg = malloc(strlen(*message) + 1);
-    strcpy(msg, *message);
-
-    if (rules[rule].l[0] != 0) {
-        outl = match(message, rules, rules[rule].l[0]);
-        if (rules[rule].l[1] != 0)
-            outl &= match(message, rules, rules[rule].l[1]);
+void dump_rules(rule *rules, int len) {
+    for (int i = 0; i < len; i++) {
+        rule r = rules[i];
+        if (r.value != 0) {
+            printf("%d: %c\n", i, r.value);
+        } else {
+            if (r.kind == SEQUENCE) {
+                printf("%d: ", i);
+                for (int j = 0; j < 4; j++) {
+                    if (r.sequence[j] != 0) {
+                        printf("%d ", r.sequence[j]);
+                    }
+                }
+                printf("\n");
+            } else {
+                printf("%d: ", i);
+                for (int j = 0; j < 4; j++) {
+                    if (r.left[j] != 0) {
+                        printf("%d ", r.left[j]);
+                    }
+                }
+                printf("| ");
+                for (int j = 0; j < 4; j++) {
+                    if (r.right[j] != 0) {
+                        printf("%d ", r.right[j]);
+                    }
+                }
+                printf("\n");
+            }
+        }
     }
-
-    if (rules[rule].r[0] != 0) {
-        outr = match(&msg, rules, rules[rule].r[0]);
-        if (rules[rule].r[1] != 0)
-            outr &= match(&msg, rules, rules[rule].r[1]);
-    }
-
-    return outr || outl;
 }
 
 int main() {
@@ -53,40 +102,65 @@ int main() {
 
     char *line = NULL;
     size_t len = 0;
-    struct rule rules[200];
+    rule rules[200];
     memset(rules, 0, sizeof(rules));
     int rules_len = 0;
     while (getline(&line, &len, file) != EOF) {
         if (strcmp(line, "\n") == 0)
             break;
+        rules_len++;
         int index = atoi(strsep(&line, ":"));
-        char *token = strsep(&line, " ");
+        line++;
+        rule *rule = &rules[index];
         if (line[0] == '\"') {
-            rules[index].v = line[1];
+            rule->value = line[1];
+            rule->kind = LITERAL;
         } else {
-            token = strsep(&line, " ");
-            rules[index].l[0] = atoi(token);
-            token = strsep(&line, " ");
-            if (token)
-                rules[index].l[1] = atoi(token);
-            token = strsep(&line, " ");
-            if (token && token[0] == '|') {
-                token = strsep(&line, " ");
-                rules[index].r[0] = atoi(token);
-                token = strsep(&line, " ");
-                if (token)
-                    rules[index].r[1] = atoi(token);
+            if (strstr(line, "|") == NULL) {
+                int i = 0;
+                char *token = strsep(&line, " ");
+                while (token != NULL) {
+                    assert(i < 4);
+                    rule->sequence[i] = atoi(token);
+                    token = strsep(&line, " ");
+                    i++;
+                }
+                rule->kind = SEQUENCE;
+            } else {
+                char *left = strsep(&line, "|");
+                int i = 0;
+                char *token = strsep(&left, " ");
+                while (token != NULL) {
+                    assert(i < 4);
+                    rule->left[i] = atoi(token);
+                    token = strsep(&left, " ");
+                    i++;
+                }
+                i = 0;
+                line++;
+                char *right = line;
+                token = strsep(&right, " ");
+                while (token != NULL) {
+                    assert(i < 4);
+                    rule->right[i] = atoi(token);
+                    token = strsep(&right, " ");
+                    i++;
+                }
+                rule->kind = BRANCH;
             }
         }
         line = NULL;
     }
+
+    dump_rules(rules, rules_len);
+    printf("\n");
 
     line = NULL;
     int count = 0;
     while (getline(&line, &len, file) != EOF) {
         line[strlen(line) - 1] = '\0';
         printf("%s", line);
-        if (match(&line, rules, 0)) {
+        if (match(&line, rules, rules[0]) && *line == '\0') {
             printf(" MATCH");
             count++;
         }
