@@ -3,3 +3,8 @@
 **/part2
 **/target/
 **/input/
+
+
+# Added by cargo
+
+/target
