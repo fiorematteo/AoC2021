@@ -17,7 +17,6 @@ fn part1(input: &str) -> usize {
     nodes.dedup();
     edges.sort();
     edges.dedup();
-
     loop {
         let mut edges = edges.clone();
         let mut nodes = nodes.clone();
