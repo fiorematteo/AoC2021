@@ -11,14 +11,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "aoc-autobuild"
-version = "0.3.0"
-dependencies = [
- "aoc-2024",
- "aoc-runner",
-]
-
-[[package]]
 name = "aoc-runner"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
