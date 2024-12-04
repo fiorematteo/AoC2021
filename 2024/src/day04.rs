@@ -6,8 +6,7 @@ pub fn part1(input: &str) -> u32 {
         for x in 0..grid[0].len() {
             if grid[y][x] == 'X' {
                 for direction in (-1..=1)
-                    .into_iter()
-                    .flat_map(|y| (-1..=1).into_iter().map(move |x| (y, x)))
+                    .flat_map(|y| (-1..=1).map(move |x| (y, x)))
                     .filter(|&(y, x)| !(y == 0 && x == 0))
                 {
                     letters.push((y, x, direction, 'X'))
@@ -28,7 +27,7 @@ pub fn part1(input: &str) -> u32 {
         }
         let (next_y, next_x) = (next_y as usize, next_x as usize);
 
-        match (last_letter, grid[next_y as usize][next_x]) {
+        match (last_letter, grid[next_y][next_x]) {
             ('X', 'M') => letters.push((next_y, next_x, direction, 'M')),
             ('M', 'A') => letters.push((next_y, next_x, direction, 'A')),
             ('A', 'S') => xmas_counter += 1,
@@ -64,7 +63,7 @@ pub fn part2(input: &str) -> u32 {
         }
         let (next_y, next_x) = (next_y as usize, next_x as usize);
 
-        match (last_letter, grid[next_y as usize][next_x]) {
+        match (last_letter, grid[next_y][next_x]) {
             ('M', 'A') => letters.push((next_y, next_x, direction, 'A')),
             ('A', 'S') => freq[y][x] += 1,
             _ => (),

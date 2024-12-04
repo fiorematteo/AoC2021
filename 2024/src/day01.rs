@@ -13,7 +13,7 @@ pub fn part1(input: &str) -> u32 {
     right.sort();
 
     left.into_iter()
-        .zip(right.into_iter())
+        .zip(right)
         .map(|(l, r)| l.abs_diff(r))
         .sum()
 }
