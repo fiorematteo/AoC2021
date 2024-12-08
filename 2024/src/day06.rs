@@ -52,7 +52,7 @@ fn generator(input: &str) -> (Vec<Vec<char>>, Pair) {
 
 #[aoc(day6, part1)]
 fn part1((grid, guard): &(Vec<Vec<char>>, Pair)) -> u32 {
-    let mut guard = guard.clone();
+    let mut guard = *guard;
     let mut visited = vec![vec![false; grid[0].len()]; grid.len()];
     let mut total = 0;
     let mut direction = (-1, 0).into();
@@ -61,7 +61,7 @@ fn part1((grid, guard): &(Vec<Vec<char>>, Pair)) -> u32 {
             visited[guard.y as usize][guard.x as usize] = true;
             total += 1;
         }
-        if !step(&grid, &mut guard, &mut direction) {
+        if !step(grid, &mut guard, &mut direction) {
             break;
         }
     }
@@ -70,7 +70,7 @@ fn part1((grid, guard): &(Vec<Vec<char>>, Pair)) -> u32 {
 
 #[aoc(day6, part2)]
 fn part2((grid, guard): &(Vec<Vec<char>>, Pair)) -> u32 {
-    let mut guard = guard.clone();
+    let mut guard = *guard;
     let mut grid = grid.clone();
     let mut total = 0;
     let mut visited = vec![vec![false; grid[0].len()]; grid.len()];
@@ -112,7 +112,7 @@ fn is_looping(grid: &[Vec<char>], mut guard: Pair, mut direction: Pair) -> bool 
             *has_visited = true;
         }
         visited_directions.push(direction);
-        if !step(&grid, &mut guard, &mut direction) {
+        if !step(grid, &mut guard, &mut direction) {
             break;
         }
     }
@@ -120,8 +120,8 @@ fn is_looping(grid: &[Vec<char>], mut guard: Pair, mut direction: Pair) -> bool 
 }
 
 fn step(grid: &[Vec<char>], guard: &mut Pair, direction: &mut Pair) -> bool {
-    let next_position = guard.clone() + *direction;
-    if !in_bounds(next_position, &grid) {
+    let next_position = *guard + *direction;
+    if !in_bounds(next_position, grid) {
         return false;
     }
     if grid[next_position.y as usize][next_position.x as usize] == '#' {
