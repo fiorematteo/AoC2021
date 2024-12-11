@@ -4,7 +4,7 @@ use std::{
 };
 
 #[aoc_generator(day8)]
-fn generator(input: &str) -> (HashMap<char, Vec<Pair>>, i32, i32) {
+pub fn generator(input: &str) -> (HashMap<char, Vec<Pair>>, i32, i32) {
     let mut grid: HashMap<char, Vec<Pair>> = HashMap::new();
     let mut max_y = 0;
     let mut max_x = 0;
@@ -23,7 +23,7 @@ fn generator(input: &str) -> (HashMap<char, Vec<Pair>>, i32, i32) {
 }
 
 #[aoc(day8, part1)]
-fn part1(&(ref grid, max_y, max_x): &(HashMap<char, Vec<Pair>>, i32, i32)) -> u32 {
+pub fn part1(&(ref grid, max_y, max_x): &(HashMap<char, Vec<Pair>>, i32, i32)) -> u32 {
     let mut antipodes = HashSet::new();
     for (_, antennas) in grid.iter() {
         for i in 0..antennas.len() {
@@ -52,7 +52,7 @@ fn part1(&(ref grid, max_y, max_x): &(HashMap<char, Vec<Pair>>, i32, i32)) -> u3
 }
 
 #[aoc(day8, part2)]
-fn part2(&(ref grid, max_y, max_x): &(HashMap<char, Vec<Pair>>, i32, i32)) -> u32 {
+pub fn part2(&(ref grid, max_y, max_x): &(HashMap<char, Vec<Pair>>, i32, i32)) -> u32 {
     let mut antipodes = HashSet::new();
     for (_, antennas) in grid.iter() {
         for i in 0..antennas.len() {
@@ -121,7 +121,7 @@ fn test_part2() {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-struct Pair {
+pub struct Pair {
     x: i32,
     y: i32,
 }

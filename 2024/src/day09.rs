@@ -1,5 +1,5 @@
 #[aoc(day9, part1)]
-fn part1(input: &str) -> usize {
+pub fn part1(input: &str) -> usize {
     let mut total = 0;
     let mut expanded = Vec::new();
     let mut id = 0;
@@ -39,7 +39,7 @@ fn part1(input: &str) -> usize {
 }
 
 #[aoc(day9, part2)]
-fn part2(input: &str) -> i64 {
+pub fn part2(input: &str) -> i64 {
     let mut blocks = Vec::new();
     let mut id = 0;
     for (i, n) in input.chars().enumerate() {

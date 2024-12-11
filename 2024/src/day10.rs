@@ -4,12 +4,12 @@ use std::{
 };
 
 #[aoc(day10, part1, hash)]
-fn part1(input: &str) -> usize {
+pub fn part1(input: &str) -> usize {
     solve(input, false)
 }
 
 #[aoc(day10, part2, hash)]
-fn part2(input: &str) -> usize {
+pub fn part2(input: &str) -> usize {
     solve(input, true)
 }
 

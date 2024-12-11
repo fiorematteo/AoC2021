@@ -1,5 +1,5 @@
 #[aoc_generator(day5)]
-fn generator(input: &str) -> (Vec<(u32, u32)>, Vec<Vec<u32>>) {
+pub fn generator(input: &str) -> (Vec<(u32, u32)>, Vec<Vec<u32>>) {
     let (rules, updates) = input.split_once("\n\n").unwrap();
     let rules: Vec<(u32, u32)> = rules
         .lines()
@@ -16,7 +16,7 @@ fn generator(input: &str) -> (Vec<(u32, u32)>, Vec<Vec<u32>>) {
 }
 
 #[aoc(day5, part1)]
-fn part1((rules, updates): &(Vec<(u32, u32)>, Vec<Vec<u32>>)) -> u32 {
+pub fn part1((rules, updates): &(Vec<(u32, u32)>, Vec<Vec<u32>>)) -> u32 {
     let mut total = 0;
     for update in updates {
         if rules.iter().all(|rule| is_correct(rule, update)) {
@@ -28,7 +28,7 @@ fn part1((rules, updates): &(Vec<(u32, u32)>, Vec<Vec<u32>>)) -> u32 {
 }
 
 #[aoc(day5, part2)]
-fn part2((rules, updates): &(Vec<(u32, u32)>, Vec<Vec<u32>>)) -> u32 {
+pub fn part2((rules, updates): &(Vec<(u32, u32)>, Vec<Vec<u32>>)) -> u32 {
     let mut total = 0;
     for update in updates
         .iter()

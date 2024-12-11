@@ -1,10 +1,10 @@
 #[aoc(day7, part1)]
-fn part1(input: &str) -> u64 {
+pub fn part1(input: &str) -> u64 {
     solve(input, false)
 }
 
 #[aoc(day7, part2)]
-fn part2(input: &str) -> u64 {
+pub fn part2(input: &str) -> u64 {
     solve(input, true)
 }
 

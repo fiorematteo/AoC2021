@@ -1,7 +1,7 @@
 use std::ops::{Add, Sub};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-struct Pair {
+pub struct Pair {
     x: i32,
     y: i32,
 }
@@ -37,7 +37,7 @@ impl From<(i32, i32)> for Pair {
 }
 
 #[aoc_generator(day6)]
-fn generator(input: &str) -> (Vec<Vec<char>>, Pair) {
+pub fn generator(input: &str) -> (Vec<Vec<char>>, Pair) {
     let grid: Vec<Vec<char>> = input.lines().map(|l| l.chars().collect()).collect();
     let mut guard: Pair = (0, 0).into();
     for (y, row) in grid.iter().enumerate() {
@@ -51,7 +51,7 @@ fn generator(input: &str) -> (Vec<Vec<char>>, Pair) {
 }
 
 #[aoc(day6, part1)]
-fn part1((grid, guard): &(Vec<Vec<char>>, Pair)) -> u32 {
+pub fn part1((grid, guard): &(Vec<Vec<char>>, Pair)) -> u32 {
     let mut guard = *guard;
     let mut visited = vec![vec![false; grid[0].len()]; grid.len()];
     let mut total = 0;
@@ -69,7 +69,7 @@ fn part1((grid, guard): &(Vec<Vec<char>>, Pair)) -> u32 {
 }
 
 #[aoc(day6, part2)]
-fn part2((grid, guard): &(Vec<Vec<char>>, Pair)) -> u32 {
+pub fn part2((grid, guard): &(Vec<Vec<char>>, Pair)) -> u32 {
     let mut guard = *guard;
     let mut grid = grid.clone();
     let mut total = 0;
