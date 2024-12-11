@@ -14,8 +14,6 @@ dependencies = [
 [[package]]
 name = "aoc"
 version = "0.1.0"
-<<<<<<< HEAD
-=======
 
 [[package]]
 name = "aoc-2022"
@@ -396,4 +394,3 @@ dependencies = [
  "quote",
  "syn 2.0.90",
 ]
->>>>>>> 32eb139 (day 11)
