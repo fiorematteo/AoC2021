@@ -17,6 +17,7 @@ pub mod day11;
 pub mod day12;
 pub mod day13;
 pub mod day14;
+pub mod day15;
 
 pub use day01 as day1;
 pub use day02 as day2;

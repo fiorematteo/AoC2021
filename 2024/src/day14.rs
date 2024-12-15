@@ -21,30 +21,14 @@ pub fn solve(input: &str, width: i64, height: i64) -> usize {
             .1
             .split_once(',')
             .unwrap();
-        let mut position = Pair {
-            x: x.parse().unwrap(),
-            y: y.parse().unwrap(),
+        let (x, y) = (x.parse::<i64>().unwrap(), y.parse::<i64>().unwrap());
+        let (vx, vy) = speed.split_once("v=").unwrap().1.split_once(',').unwrap();
+        let (vx, vy) = (vx.parse::<i64>().unwrap(), vy.parse::<i64>().unwrap());
+        let position = Pair {
+            x: (x + vx * 100).rem_euclid(width),
+            y: (y + vy * 100).rem_euclid(height),
         };
-        let (x, y) = speed.split_once("v=").unwrap().1.split_once(',').unwrap();
-        let speed = Pair {
-            x: x.parse().unwrap(),
-            y: y.parse().unwrap(),
-        };
-        for _ in 0..100 {
-            position += speed;
-            if position.x < 0 {
-                position.x += width;
-            }
-            if position.y < 0 {
-                position.y += height;
-            }
-            if position.x >= width {
-                position.x -= width;
-            }
-            if position.y >= height {
-                position.y -= height;
-            }
-        }
+
         if position.x < width / 2 && position.y < height / 2 {
             top_left += 1;
         }
@@ -98,18 +82,8 @@ pub fn part2(input: &str) -> usize {
         let mut bottom_right = 0;
         for (position, speed) in &mut robots {
             *position += *speed;
-            if position.x < 0 {
-                position.x += width;
-            }
-            if position.y < 0 {
-                position.y += height;
-            }
-            if position.x >= width {
-                position.x -= width;
-            }
-            if position.y >= height {
-                position.y -= height;
-            }
+            position.x = position.x.rem_euclid(width);
+            position.y = position.y.rem_euclid(height);
 
             if position.x < width / 2 && position.y < height / 2 {
                 top_left += 1;
