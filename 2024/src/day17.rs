@@ -82,7 +82,7 @@ pub fn solve(mut a: u64, instructions: &[u64]) -> Vec<u64> {
             }
             1 => {
                 //blx
-                b = b ^ arg;
+                b ^= arg;
             }
             2 => {
                 // bst
@@ -97,7 +97,7 @@ pub fn solve(mut a: u64, instructions: &[u64]) -> Vec<u64> {
             }
             4 => {
                 // bxc
-                b = b ^ c;
+                b ^= c;
             }
             5 => {
                 // out

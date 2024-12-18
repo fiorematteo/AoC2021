@@ -117,26 +117,23 @@ pub fn part2(input: &str) -> usize {
                     cost: cost + 1000,
                 });
                 distance.insert((pos, new_dir), cost + 1000);
-                prev.entry((pos, new_dir))
-                    .or_insert(vec![])
-                    .push((pos, dir));
+                prev.entry((pos, new_dir)).or_default().push((pos, dir));
             }
         }
         let next = pos + dir;
-        if grid[next.y as usize][next.x as usize] != '#' {
-            if distance
+        if grid[next.y as usize][next.x as usize] != '#'
+            && distance
                 .get(&(next, dir))
-                .map(|&dist| cost + 1 <= dist)
+                .map(|&dist| cost < dist)
                 .unwrap_or(true)
-            {
-                queue.push(State {
-                    pos: next,
-                    dir,
-                    cost: cost + 1,
-                });
-                distance.insert((next, dir), cost + 1);
-                prev.entry((next, dir)).or_insert(vec![]).push((pos, dir));
-            }
+        {
+            queue.push(State {
+                pos: next,
+                dir,
+                cost: cost + 1,
+            });
+            distance.insert((next, dir), cost + 1);
+            prev.entry((next, dir)).or_default().push((pos, dir));
         }
     }
 
@@ -163,7 +160,7 @@ pub fn part2(input: &str) -> usize {
     visited_pos.len()
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Ord, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 struct State {
     pos: Pair,
     dir: Pair,
@@ -172,7 +169,13 @@ struct State {
 
 impl PartialOrd for State {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        self.cost.partial_cmp(&other.cost).map(|ord| ord.reverse())
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for State {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.cost.cmp(&other.cost).reverse()
     }
 }
 

@@ -29,7 +29,7 @@ pub fn part1(input: &str) -> usize {
 
     for step in instructions {
         if try_move(robot, step, &mut grid) {
-            robot = robot + step;
+            robot += step;
         }
     }
 
