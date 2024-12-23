@@ -56,10 +56,10 @@ fn compute_moves(
     if let Some(&value) = cache.get(&key) {
         return value;
     }
-    let mut sequence = vec![if diff.y < 0 { '^' } else { 'v' }; diff.y.abs() as usize];
+    let mut sequence = vec![if diff.y < 0 { '^' } else { 'v' }; diff.y.unsigned_abs() as usize];
     sequence.extend(vec![
         if diff.x < 0 { '<' } else { '>' };
-        diff.x.abs() as usize
+        diff.x.unsigned_abs() as usize
     ]);
     if horizontal_first {
         sequence.reverse();

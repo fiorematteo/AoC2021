@@ -46,7 +46,7 @@ pub fn part2(input: &str) -> usize {
             *profit.entry(key).or_default() += digits[i];
         }
     }
-    profit.values().max().unwrap().clone() as usize
+    *profit.values().max().unwrap() as usize
 }
 
 #[test]
